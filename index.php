@@ -1,0 +1,92 @@
+<?php
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "intenship";
+
+        $conn = new mysqli($servername, $username, $password, $dbname);
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        } 
+        
+        $api_url = 'https://dummyjson.com/quotes/random/10';
+
+        $ch = curl_init($api_url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $data = json_decode($response, true);
+
+        $query = "SELECT COUNT(*) as count FROM quotes";
+        $result = $conn->query($query);
+        $row = $result->fetch_assoc();
+        $recordCount = $row['count'];
+
+        if ($recordCount >= 50) {
+            $query = "DELETE FROM quotes ORDER BY id ASC LIMIT 10";
+            $conn->query($query);
+        }
+
+            foreach ($data as $quoteData) {
+                $author = $quoteData['author'];
+                $quote = $quoteData['quote'];
+                $id = $quoteData['id'];
+        
+                $query = "INSERT IGNORE INTO quotes (id, author, quote) VALUES (?, ?, ?)";
+                $stmt = $conn->prepare($query);
+                $stmt->bind_param("sss",$id, $author, $quote);
+                $stmt->execute();
+            }
+
+if (isset($_GET['search'])) {
+    $search_query = $_GET['search'];
+    $query = "SELECT * FROM quotes WHERE author LIKE '%$search_query%' LIMIT 1";
+} else {
+    $random_id = rand(1, 100);
+    $query = "SELECT * FROM quotes ORDER BY RAND() LIMIT 1";
+}
+$result = $conn->query($query);
+
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $author = $row['author'];
+    $quote = $row['quote'];
+} else {
+    $author = " ";
+    $quote = "No quotes found by the Author.";
+}
+
+$conn->close();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quote of the Day</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="quote-box">
+        <h2>Quote Of the Day</h2>
+        <form>
+        <input type="search" name="search" placeholder="Search by author" value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>">
+        <button class="searchbtn" type="submit">Search</button>
+        </form>
+        <blockquote id="quote"><?php echo $quote; ?></blockquote>
+        <span id="author"><?php echo $author; ?></span>
+        <div>
+        <button class="refresh" onclick="location.href='<?php echo $_SERVER['PHP_SELF']; ?> '">New Quote</button>
+        </div>
+    </div>
+
+</body>
+
+</html>
