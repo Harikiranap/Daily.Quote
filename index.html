@@ -1,4 +1,4 @@
-<?php
+<!--<?php
         $servername = "localhost";
         $username = "root";
         $password = "";
@@ -61,7 +61,23 @@ if ($result->num_rows > 0) {
 }
 
 $conn->close();
-?>
+// add this in html code to run
+<body>
+    <div class="quote-box">
+        <h2>Quote Of the Day</h2>
+        <form>
+        <input type="search" name="search" placeholder="Search by author" value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>">
+        <button class="searchbtn" type="submit">Search</button>
+        </form>
+        <blockquote id="quote"><?php echo $quote; ?> Need DataBase To run </blockquote>
+        <span id="author"><?php echo $author; ?></span>
+        <div>
+        <button class="refresh" onclick="location.href='<?php echo $_SERVER['PHP_SELF']; ?> '">New Quote</button>
+        </div>
+    </div>
+
+</body>
+?>-->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -77,13 +93,13 @@ $conn->close();
     <div class="quote-box">
         <h2>Quote Of the Day</h2>
         <form>
-        <input type="search" name="search" placeholder="Search by author" value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>">
+        <input type="search" name="search" placeholder="Search by author" value=" ">
         <button class="searchbtn" type="submit">Search</button>
         </form>
-        <blockquote id="quote"><?php echo $quote; ?></blockquote>
-        <span id="author"><?php echo $author; ?></span>
+        <blockquote id="quote"> Need DataBase To run </blockquote>
+        <span id="author">Developed BY HariKiran</span>
         <div>
-        <button class="refresh" onclick="location.href='<?php echo $_SERVER['PHP_SELF']; ?> '">New Quote</button>
+        <button class="refresh" >New Quote</button>
         </div>
     </div>
 
